@@ -78,3 +78,26 @@ class _ControllerConsumerState<T extends ReignController>
     );
   }
 }
+
+class ReignMultiProvider extends StatelessWidget {
+  const ReignMultiProvider({
+    super.key,
+    required this.controllers,
+    required this.child,
+  });
+
+  final List<ReignController> controllers;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    Widget current = child;
+    for (final controller in controllers.reversed) {
+      current = ControllerProvider(
+        create: () => controller,
+        child: current,
+      );
+    }
+    return current;
+  }
+}

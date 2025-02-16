@@ -23,3 +23,37 @@ All notable changes to this project will be documented in this file.
 - Core Controller class with lifecycle management
 - ControllerProvider and ControllerConsumer widgets
 - Basic test suite
+
+## 0.3.0 - 2023-08-20
+
+### Breaking Changes
+
+- Renamed `MultiProvider` to `ReignMultiProvider` to avoid naming conflicts
+- Removed module system (`ReignModule` and related classes)
+- Lifecycle methods renamed:
+  - `onInit()` → `setup()`
+  - `onDispose()` → `cleanup()`
+
+### Added
+
+- Complete example app with:
+  - 4 demonstration screens
+  - 5 example controllers
+  - Full navigation implementation
+- New annotation-based API for:
+  - `@ReignController`
+  - `@Injectable`
+  - `@Component`
+
+### Fixed
+
+- Circular dependency handling in controller initialization
+- Missing type definitions in example app
+- Incorrect lifecycle method overrides
+- Documentation inconsistencies
+
+### Removed
+
+- Deprecated `dependOn()` method (use `find()` instead)
+- Unused module provider system
+- Redundant decorator implementations

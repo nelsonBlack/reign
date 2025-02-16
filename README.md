@@ -75,7 +75,7 @@ class UserService extends ReignController {
 }
 
 // Setup
-MultiProvider(
+ReignMultiProvider(
   controllers: [UserService(), AuthController()],
   child: MyApp(),
 )
@@ -172,7 +172,7 @@ class UserController extends ReignController {
 // main.dart
 void main() {
   runApp(
-    MultiProvider(
+    ReignMultiProvider(
       controllers: [
         ApiClient(),
         UserController(),
