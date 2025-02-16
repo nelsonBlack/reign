@@ -23,23 +23,19 @@ import 'store.dart';
 ///   }
 /// }
 /// ```
-abstract class ReignController
-    with Lifecycle, Disposable
-    implements ValueListenable<void> {
+abstract class ReignController extends ValueNotifier<void>
+    with Lifecycle, Disposable {
   /// The BuildContext of the nearest [ControllerProvider] ancestor
   BuildContext? _context;
 
   /// The central store that manages all controllers
   final ControllerStore _store = ControllerStore.instance;
 
-  /// Internal notifier used to trigger widget rebuilds
-  final ValueNotifier<Object?> _notifier = ValueNotifier<Object?>(null);
-
   /// Creates a controller and optionally registers it with the [ControllerStore].
   ///
   /// If [register] is true (default), the controller will be registered with the store
   /// and can be accessed via [ControllerProvider.of] or [dependOn].
-  ReignController({bool register = true}) {
+  ReignController({bool register = true}) : super(null) {
     if (register) {
       _store.register(this);
     }
@@ -64,22 +60,7 @@ abstract class ReignController
   /// dependent widgets.
   @protected
   void update() {
-    _notifier.value = _notifier.value == null ? Object() : null;
-    _store.notifyListeners(this);
-  }
-
-  /// Adds a listener that will be called whenever [update] is called.
-  @override
-  void addListener(VoidCallback listener) {
-    _notifier.addListener(listener);
-    _store.addListener(this, listener);
-  }
-
-  /// Removes a previously registered listener.
-  @override
-  void removeListener(VoidCallback listener) {
-    _notifier.removeListener(listener);
-    _store.removeListener(this, listener);
+    notifyListeners();
   }
 
   /// Disposes the controller, cleaning up resources and unregistering from the store.
@@ -89,7 +70,6 @@ abstract class ReignController
   @override
   @mustCallSuper
   void dispose() {
-    _notifier.dispose();
     _store.unregister(this);
     super.dispose();
   }
@@ -104,9 +84,4 @@ abstract class ReignController
   T dependOn<T extends ReignController>() {
     return ControllerStore.instance.get<T>();
   }
-
-  /// Implementation of [ValueListenable.value].
-  /// This is used internally and should not be called directly.
-  @override
-  void get value {}
 }
