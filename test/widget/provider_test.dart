@@ -17,19 +17,30 @@ void main() {
 
   group('Widget Tests', () {
     testWidgets('ControllerProvider builds child widget', (tester) async {
-      await tester.pumpWidget(testWidget(
-        controllers: [PlaceholderController()],
-        child: const Placeholder(),
-      ));
+      final controller = PlaceholderController();
+      ControllerStore.instance.save(controller);
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: ControllerProvider<PlaceholderController>(
+            create: () => controller,
+            child: const Placeholder(),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
 
       expect(find.byType(Placeholder), findsOneWidget);
     });
 
     testWidgets('ControllerConsumer reacts to updates', (tester) async {
+      final controller = CounterController();
+      ControllerStore.instance.save(controller);
+
       await tester.pumpWidget(
         MaterialApp(
           home: ControllerProvider(
-            create: () => CounterController(),
+            create: () => controller,
             child: ControllerConsumer<CounterController>(
               builder: (context, controller) =>
                   Text('Count: ${controller.count}'),
@@ -37,17 +48,16 @@ void main() {
           ),
         ),
       );
+      await tester.pumpAndSettle();
 
       // Verify initial state
       expect(find.text('Count: 0'), findsOneWidget);
 
       // Get controller and update state
-      final controller = ControllerStore.instance.get<CounterController>();
       controller.increment();
 
       // Wait for widget to rebuild
       await tester.pump();
-      await tester.pumpAndSettle();
 
       // Verify updated state
       expect(find.text('Count: 1'), findsOneWidget);

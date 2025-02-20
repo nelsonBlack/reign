@@ -2,40 +2,54 @@ import 'package:flutter/foundation.dart';
 import 'package:reign/core/controller.dart';
 import '../core/exceptions.dart';
 
+/// Central registry for managing controller instances.
+///
+/// {@macro reign_store}
+///
+/// Use this singleton to:
+/// - Register controllers with [save]
+/// - Retrieve controllers with [use]
+/// - Remove controllers with [remove]
+///
+/// Example:
+/// ```dart
+/// final store = ControllerStore.instance;
+/// store.save(MyController());
+/// final controller = store.use<MyController>();
+/// ```
 class ControllerStore {
   static final ControllerStore instance = ControllerStore._();
-  final Map<Type, ReignController> _controllers = {};
+  final _controllers = <Type, ReignController>{};
   final Map<ReignController, List<VoidCallback>> _listeners = {};
   static bool debugMode = false;
 
   ControllerStore._();
 
-  void register(ReignController controller) {
+  void save(ReignController controller) {
     if (debugMode) {
-      debugPrint('Registering ${controller.runtimeType}');
+      debugPrint('Saving ${controller.runtimeType}');
     }
-    if (_controllers.containsKey(controller.type)) {
-      throw FlutterError(
-          'ReignController of type ${controller.type} already registered');
+    if (_controllers.containsKey(controller.runtimeType) && !debugMode) {
+      throw ControllerConflictError(controller.runtimeType);
     }
-    _controllers[controller.type] = controller;
+    _controllers[controller.runtimeType] = controller;
   }
 
-  T get<T extends ReignController>() {
+  T use<T extends ReignController>() {
     final controller = _controllers[T];
     if (controller == null) {
+      if (debugMode) {
+        debugPrint('Controller not found: $T');
+      }
       throw ControllerNotFoundError(T);
     }
     return controller as T;
   }
 
-  void unregister(ReignController controller) {
-    if (debugMode) {
-      debugPrint('Disposing ${controller.runtimeType}');
-    }
-    controller.onDispose();
-    _controllers.remove(controller.type);
-    _listeners.remove(controller);
+  void remove(Type type) {
+    final controller = _controllers.remove(type);
+    controller?.dispose();
+    _listeners.removeWhere((key, value) => key.runtimeType == type);
   }
 
   void addListener(ReignController controller, VoidCallback listener) {

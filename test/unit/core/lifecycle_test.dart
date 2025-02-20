@@ -5,7 +5,7 @@ import '../../src/test_utils.dart';
 void main() {
   group('Lifecycle Tests', () {
     test('Controller lifecycle callbacks', () {
-      final controller = CounterController();
+      final controller = CounterController(register: false);
       expect(controller.isInitialized, isFalse);
 
       controller.init();

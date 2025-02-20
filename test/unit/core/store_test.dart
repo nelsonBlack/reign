@@ -1,24 +1,29 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:reign/core/controller.dart';
 import 'package:reign/core/store.dart';
+import 'package:reign/core/exceptions.dart';
 
 import '../../src/test_utils.dart';
 
 // Create controllers without auto-registration for testing
-class TestUserService extends ReignController {
-  TestUserService() : super(register: false);
+class TestUserService extends ReignController<void> {
+  TestUserService() : super(null, register: false);
 }
 
-class TestAuthController extends ReignController {
+class TestAuthController extends ReignController<void> {
   late final TestUserService userService;
 
-  TestAuthController() : super(register: false);
+  TestAuthController() : super(null, register: false);
 
   @override
   void init() {
     userService = dependOn<TestUserService>();
     super.init();
   }
+}
+
+class TestController extends ReignController<void> {
+  TestController() : super(null, register: false);
 }
 
 void main() {
@@ -39,13 +44,30 @@ void main() {
       final authController = TestAuthController();
 
       // Now we can safely register them explicitly
-      store.register(userService);
-      store.register(authController);
+      store.save(userService);
+      store.save(authController);
 
       // Initialize controller to trigger dependency resolution
       authController.init();
 
       expect(authController.userService, equals(userService));
+    });
+
+    test('Should retrieve registered controller', () {
+      final store = ControllerStore.instance;
+      final controller = TestController();
+
+      // Explicitly register the controller first
+      ControllerStore.instance.save(controller);
+
+      final result = store.use<TestController>();
+      expect(result, equals(controller));
+    });
+
+    test('Should throw when retrieving unregistered controller', () {
+      final store = ControllerStore.instance;
+      expect(() => store.use<TestController>(),
+          throwsA(isA<ControllerNotFoundError>()));
     });
   });
 }

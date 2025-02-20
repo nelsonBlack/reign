@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:reign/core/controller.dart';
 import 'package:reign/widgets/provider.dart';
 
-class MockController extends ReignController {
-  // Remove override since it's already implemented in base class
+class MockController extends ReignController<dynamic> {
+  MockController() : super(null);
 }
 
 Widget testWidget({

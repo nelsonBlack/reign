@@ -1,7 +1,8 @@
 name: reign
-description: A lightweight state management solution for Flutter applications.
-version: 1.0.0
-homepage: https://github.com/yourusername/reign
+description: A Flutter package that provides an easy-to-use async builder widget with loading and error states.
+version: 0.0.1
+homepage: https://github.com/nelsonBlack/reign
+repository: https://github.com/nelsonBlack/reign
 
 environment:
   sdk: ^3.6.0
@@ -14,9 +15,7 @@ dependencies:
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  flutter_lints: ^5.0.0
-  test_cov_console: ^0.2.2
-  mocktail: ^0.3.0
+  flutter_lints: ^2.0.0
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec

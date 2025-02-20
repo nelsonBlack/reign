@@ -1,8 +1,17 @@
 import 'package:reign/reign.dart';
+import '../models/user.dart';
 
-class UserController extends ReignController {
-  String? _user;
+class UserController extends ReignController<User?> {
+  User? _user;
   bool _loading = false;
+  Object? _error;
+
+  UserController({required User? initialValue}) : super(initialValue);
+
+  User? get user => _user;
+  bool get isLoading => _loading;
+  @override
+  Object? get error => _error;
 
   @override
   void onInit() {
@@ -10,16 +19,20 @@ class UserController extends ReignController {
     fetchUser();
   }
 
-  String? currentUser() => _user;
-  bool isLoading() => _loading;
-
   Future<void> fetchUser() async {
-    _loading = true;
-    update();
+    await handleAsync<void>(() async {
+      try {
+        _loading = true;
+        update();
 
-    await Future.delayed(const Duration(seconds: 1));
-    _user = 'Reign User';
-    _loading = false;
-    update();
+        await Future.delayed(Duration(seconds: 1)); // Simulate API call
+        _user = User('Reign User');
+      } catch (e) {
+        _error = e;
+      } finally {
+        _loading = false;
+        update();
+      }
+    });
   }
 }

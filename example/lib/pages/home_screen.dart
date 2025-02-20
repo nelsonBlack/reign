@@ -1,3 +1,5 @@
+import 'package:example/controllers/user_controller.dart';
+import 'package:example/widgets/theme_switcher.dart';
 import 'package:flutter/material.dart';
 import 'package:reign/reign.dart';
 import '../controllers/theme_controller.dart';
@@ -10,46 +12,32 @@ class HomeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final themeCtrl = ControllerProvider.of<ThemeController>(context);
-
     return Scaffold(
       appBar: AppBar(
         title: const Text('Reign Demo'),
-        actions: [
-          IconButton(
-            icon: Icon(themeCtrl.currentTheme() == ThemeMode.dark
-                ? Icons.light_mode
-                : Icons.dark_mode),
-            onPressed: themeCtrl.toggleTheme,
-          ),
-        ],
+        //  actions: <Widget>[const ThemeSwitcher()],
       ),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            ElevatedButton(
-              onPressed: () => Navigator.push(
-                context,
-                MaterialPageRoute(builder: (_) => const CounterScreen()),
+            ReignBuilder<UserController>(
+              builder: (context, userCtrl) => Text(
+                userCtrl.user?.name ?? 'Guest User',
+                style: Theme.of(context).textTheme.headlineSmall,
               ),
-              child: const Text('Counter Demo'),
             ),
             const SizedBox(height: 20),
             ElevatedButton(
-              onPressed: () => Navigator.push(
-                context,
-                MaterialPageRoute(builder: (_) => const TodoScreen()),
-              ),
-              child: const Text('Todo List'),
+              onPressed: () => Navigator.push(context,
+                  MaterialPageRoute(builder: (_) => const CounterScreen())),
+              child: const Text('Local Counter'),
             ),
             const SizedBox(height: 20),
             ElevatedButton(
-              onPressed: () => Navigator.push(
-                context,
-                MaterialPageRoute(builder: (_) => const UserScreen()),
-              ),
-              child: const Text('User Profile'),
+              onPressed: () => Navigator.push(context,
+                  MaterialPageRoute(builder: (_) => const TodoScreen())),
+              child: const Text('Global Todos'),
             ),
           ],
         ),

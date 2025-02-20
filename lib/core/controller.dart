@@ -4,26 +4,26 @@ import 'disposable.dart';
 import 'lifecycle.dart';
 import 'store.dart';
 
-/// Base class for all controllers in the Reign framework.
+/// Base class for all state controllers in the Reign system.
 ///
-/// Controllers manage application state and business logic. They can be used to:
-/// - Store and modify state
-/// - Handle business logic
-/// - Manage dependencies between controllers
-/// - Respond to lifecycle events
+/// {@template reign_controller}
+/// Controllers manage business logic and state for your application.
+/// They automatically handle lifecycle events when used with [ReignBuilder]
+/// or [ControllerProvider].
 ///
-/// Example:
+/// Example usage:
 /// ```dart
-/// class CounterController extends Controller {
-///   int count = 0;
+/// class CounterController extends ReignController<int> {
+///   CounterController() : super(0);
 ///
 ///   void increment() {
-///     count++;
+///     value++;
 ///     update();
 ///   }
 /// }
 /// ```
-abstract class ReignController extends ValueNotifier<void>
+/// {@endtemplate}
+abstract class ReignController<T> extends ValueNotifier<T>
     with Lifecycle, Disposable {
   /// The BuildContext of the nearest [ControllerProvider] ancestor
   BuildContext? _context;
@@ -35,9 +35,10 @@ abstract class ReignController extends ValueNotifier<void>
   ///
   /// If [register] is true (default), the controller will be registered with the store
   /// and can be accessed via [ControllerProvider.of] or [dependOn].
-  ReignController({bool register = true}) : super(null) {
+  ReignController(T initialValue, {bool register = true})
+      : super(initialValue) {
     if (register) {
-      _store.register(this);
+      _store.save(this);
     }
   }
 
@@ -50,8 +51,14 @@ abstract class ReignController extends ValueNotifier<void>
     return _context!;
   }
 
+  BuildContext? get safeContext {
+    assert(_context != null, 'Context accessed before initialization');
+    return _context!;
+  }
+
   /// Sets the BuildContext for this controller.
   /// This is called internally by [ControllerProvider].
+  @protected
   set context(BuildContext value) => _context = value;
 
   /// Notifies all listeners that the controller's state has changed.
@@ -70,7 +77,8 @@ abstract class ReignController extends ValueNotifier<void>
   @override
   @mustCallSuper
   void dispose() {
-    _store.unregister(this);
+    _store.remove(runtimeType);
+    _context = null;
     super.dispose();
   }
 
@@ -82,6 +90,48 @@ abstract class ReignController extends ValueNotifier<void>
   /// This allows controllers to depend on and communicate with other controllers.
   /// Throws a [ControllerNotFoundError] if no controller of type [T] is registered.
   T dependOn<T extends ReignController>() {
-    return ControllerStore.instance.get<T>();
+    return ControllerStore.instance.use<T>();
+  }
+
+  Object? error;
+  bool hasError = false;
+
+  Future<T> handleAsync<T>(Future<T> Function() operation) async {
+    try {
+      hasError = false;
+      update();
+      return await operation();
+    } catch (e) {
+      error = e;
+      hasError = true;
+      update();
+      rethrow;
+    } finally {
+      update();
+    }
+  }
+
+  void clearError() {
+    error = null;
+    update();
+  }
+
+  bool _isReady = false;
+  @override
+  bool get isReady => _isReady;
+
+  @override
+  void onReady() {
+    _isReady = true;
+    _onReady();
+  }
+
+  @protected
+  void _onReady() {}
+
+  @override
+  void onDispose() {
+    super.onDispose();
+    // Controller dispose logic
   }
 }

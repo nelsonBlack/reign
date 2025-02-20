@@ -1,32 +1,29 @@
 import 'package:flutter/material.dart';
 import 'package:reign/reign.dart';
 import '../controllers/todo_controller.dart';
+import '../widgets/todo_list_item.dart';
 
 class TodoScreen extends StatelessWidget {
   const TodoScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final todoCtrl = ControllerProvider.of<TodoController>(context);
-
     return Scaffold(
-      appBar: AppBar(title: const Text('Todo List')),
+      appBar: AppBar(title: const Text('Global Todos')),
       body: ControllerConsumer<TodoController>(
         builder: (context, controller) => ListView.builder(
-          itemCount: controller.todos().length,
-          itemBuilder: (ctx, i) => ListTile(
-            title: Text(controller.todos()[i]),
-          ),
+          itemCount: controller.todos.length,
+          itemBuilder: (ctx, i) => TodoListItem(index: i),
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () => _showAddTodoDialog(context, todoCtrl),
+        onPressed: () => _showAddDialog(context),
         child: const Icon(Icons.add),
       ),
     );
   }
 
-  void _showAddTodoDialog(BuildContext context, TodoController controller) {
+  void _showAddDialog(BuildContext context) {
     showDialog(
       context: context,
       builder: (context) {
@@ -36,9 +33,11 @@ class TodoScreen extends StatelessWidget {
           content: TextField(controller: textController),
           actions: [
             TextButton(
-              onPressed: () {
+              onPressed: () async {
                 if (textController.text.isNotEmpty) {
-                  controller.addTodo(textController.text);
+                  final todoCtrl =
+                      await ControllerProvider.of<TodoController>(context);
+                  todoCtrl.addTodo(textController.text);
                   Navigator.pop(context);
                 }
               },

@@ -1,11 +1,12 @@
 import 'package:reign/reign.dart';
 
-class CounterController extends ReignController {
-  int _count = 0;
-  int currentCount() => _count;
+class CounterController extends ReignController<int> {
+  CounterController({required int initialValue}) : super(initialValue);
+
+  int currentCount() => value;
 
   void increment() {
-    _count++;
+    value++;
     update();
   }
 }

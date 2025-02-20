@@ -1,30 +1,48 @@
 import 'package:flutter/foundation.dart';
 
+enum LifecycleState { created, initialized, ready, disposed }
+
 mixin Lifecycle {
-  bool _initialized = false;
-  bool _disposed = false;
+  LifecycleState _state = LifecycleState.created;
 
-  bool get isInitialized => _initialized;
-  bool get isDisposed => _disposed;
-
-  void init() {
-    assert(!_disposed, 'Cannot initialize a disposed controller');
-    if (!_initialized) {
-      onInit();
-      _initialized = true;
-    }
+  @protected
+  void initialize() {
+    if (_state != LifecycleState.created) return;
+    _state = LifecycleState.initialized;
+    onInit();
   }
 
-  void onInit() {}
-  void onReady() {}
+  @protected
+  void markReady() {
+    if (_state != LifecycleState.initialized) return;
+    _state = LifecycleState.ready;
+    onReady();
+  }
 
   @mustCallSuper
   void dispose() {
-    if (!_disposed) {
-      onDispose();
-      _disposed = true;
-    }
+    if (_state == LifecycleState.disposed) return;
+    _state = LifecycleState.disposed;
+    onDispose();
   }
 
+  @mustCallSuper
+  void init() {
+    if (_state != LifecycleState.created) return;
+    _state = LifecycleState.initialized;
+    onInit();
+  }
+
+  @protected
+  void onInit() {}
+
+  @protected
+  void onReady() {}
+
+  @protected
   void onDispose() {}
+
+  bool get isInitialized => _state.index >= LifecycleState.initialized.index;
+  bool get isDisposed => _state == LifecycleState.disposed;
+  bool get isReady => _state == LifecycleState.ready;
 }

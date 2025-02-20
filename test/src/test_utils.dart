@@ -3,23 +3,21 @@ import 'package:reign/core/controller.dart';
 import 'package:reign/core/store.dart';
 import 'package:reign/widgets/provider.dart';
 
-class MockController extends ReignController {
-  MockController({super.register});
+class MockController extends ReignController<dynamic> {
+  MockController({super.register}) : super(null);
 
   @override
   void update() => super.update();
 
   // Add value implementation
-  @override
-  void get value {}
 }
 
-class PlaceholderController extends ReignController {
-  PlaceholderController({super.register});
+class PlaceholderController extends ReignController<dynamic> {
+  PlaceholderController({super.register}) : super(null);
 }
 
-class CounterController extends ReignController {
-  CounterController({super.register});
+class CounterController extends ReignController<int> {
+  CounterController({super.register}) : super(0);
 
   int _count = 0;
   int get count => _count;

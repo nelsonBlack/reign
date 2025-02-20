@@ -7,20 +7,16 @@ class CounterScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Counter Demo')),
-      body: Center(
-        child: ControllerConsumer<CounterController>(
-          builder: (context, controller) => Text(
-            'Count: ${controller.currentCount()}',
-            style: Theme.of(context).textTheme.headlineMedium,
-          ),
+    return ReignBuilder<CounterController>(
+      create: () => CounterController(initialValue: 0),
+      builder: (context, controller) => Scaffold(
+        appBar: AppBar(title: const Text('Local Counter')),
+        body: Center(
+          child: Text('Count: ${controller.value}',
+              style: Theme.of(context).textTheme.headlineMedium),
         ),
-      ),
-      floatingActionButton: ControllerConsumer<CounterController>(
-        builder: (context, controller) => FloatingActionButton(
+        floatingActionButton: FloatingActionButton(
           onPressed: controller.increment,
-          tooltip: 'Increment',
           child: const Icon(Icons.add),
         ),
       ),

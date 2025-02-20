@@ -1,13 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:reign/reign.dart';
 
-class ThemeController extends ReignController {
-  ThemeMode _theme = ThemeMode.light;
+class ThemeController extends ReignController<ThemeMode> {
+  final ThemeMode _theme = ThemeMode.system;
 
-  ThemeMode currentTheme() => _theme;
+  ThemeController() : super(ThemeMode.system);
+
+  ThemeMode currentTheme() => value;
 
   void toggleTheme() {
-    _theme = _theme == ThemeMode.light ? ThemeMode.dark : ThemeMode.light;
+    value = value == ThemeMode.light ? ThemeMode.dark : ThemeMode.light;
     update();
   }
 }
